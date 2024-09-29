@@ -1,0 +1,146 @@
+<?php
+include './headerLink.php';
+session_start();
+if (isset($_SESSION['user'])) {
+    $id = isset($_GET['id']) ? $_GET['id'] : '';
+} else {
+    header("location:login");
+}
+?>
+<body>
+    <section class="body">
+
+        <!-- start: header -->
+        <?php
+        include './header.php';
+        ?>
+        <!-- end: header -->
+
+        <div class="inner-wrapper">
+            <!-- start: sidebar -->
+            <?php
+            $page = 'ecommerce';
+            include './sidebar.php';
+            ?>
+            <!-- end: sidebar -->
+
+            <section role="main" class="content-body">
+                <header class="page-header page-header-left-inline-breadcrumb">
+                    <h2 class="font-weight-bold text-6">Customer List</h2>
+                    <div class="right-wrapper">
+                        <ol class="breadcrumbs">
+
+                            <li><span>Home</span></li>
+
+                            <li><span>Customer</span></li>
+                            <li><a href="add_customer" class="btn btn-primary btn-md font-weight-semibold btn-py-2 px-4">+ Add Customer</a></li>
+                        </ol>
+
+                        <a class="sidebar-right-toggle" data-open="sidebar-right"><i class="fas fa-chevron-left"></i></a>
+                    </div>
+                </header>
+
+                <div class="row">
+                    <div class="col">
+                        <section class="card">
+                            <div class="card-body">
+                                <table class="table table-bordered table-striped mb-0" id="datatable-tabletools">
+                                    <thead>
+                                        <tr>
+
+                                            <th width="3%">ID</th>
+                                            <th width="25%">Name</th>
+                                            <th width="15%">Phone</th>
+                                            <th width="15%">Email</th>
+                                            <th width="30%">Address</th>
+                                            <th width="15%">City</th>
+                                            <th width="15%">Zip code</th>
+                                            <th width="15%">State</th>
+                                            <th width="10%">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php
+                                        require_once ('./DB.php');
+                                        $sql = "SELECT * FROM customer ORDER BY id DESC";
+                                        $sql_result = mysqli_query($conn, $sql);
+                                        $counter = 0;
+                                        while ($row = mysqli_fetch_array($sql_result)) {
+                                            ?>
+
+                                            <tr>
+
+                                                <td><strong><?php echo ++$counter; ?></strong></td>
+                                                <td><strong><?php echo $row['c_name']; ?></strong></td>
+                                                <td><?php echo $row['c_phone']; ?></td>
+                                                <td><?php echo $row['c_email']; ?></td>
+                                                <td><?php echo $row['c_address']; ?></td>
+                                                <td><?php echo $row['city']; ?></td>
+                                                <td><?php echo $row['pincode']; ?></td>
+                                                <td><?php echo $row['state']; ?></td>
+                                                <td class="actions">
+                                                    <a href="update_customer?cust_id=<?php echo $row['id']; ?>" title="Update" class="on-default edit-row"><i class="fas fa-pencil-alt"></i></a>
+                                                    <a href="#!" id="<?php echo $row ['id']; ?>" class="on-default remove-row deleteBtn" title="Delete"><i class="far fa-trash-alt"></i></a>
+                                                    <a href="add_invoice?id=<?php echo $row['id']; ?>" title="Generate Invoice" id="<?php echo $row ['id']; ?>" class="on-default remove-row"><i class="far fa-file"></i></a>
+                                                </td>
+                                            </tr>
+
+
+                                            <?php
+                                        }
+                                        ?>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        </section>
+                    </div>
+                </div>
+
+            </section>
+        </div>
+
+    </section>
+
+    <?php
+    include './footerLink.php';
+    ?>
+
+    <script src="vendor/datatables/extras/TableTools/Buttons-1.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="vendor/datatables/extras/TableTools/Buttons-1.4.2/js/buttons.bootstrap4.min.js"></script>
+    <script src="vendor/datatables/extras/TableTools/Buttons-1.4.2/js/buttons.html5.min.js"></script>
+    <script src="vendor/datatables/extras/TableTools/Buttons-1.4.2/js/buttons.print.min.js"></script>
+    <script src="vendor/datatables/extras/TableTools/JSZip-2.5.0/jszip.min.js"></script>
+    <script src="vendor/datatables/extras/TableTools/pdfmake-0.1.32/vfs_fonts.js"></script>
+
+
+    <script src="js/examples/examples.datatables.tabletools.js"></script>
+       <script>
+        //            Delete Query
+
+        $(document).ready(function () {
+            $('.deleteBtn').click(function () {
+                var id = $(this).attr("id");
+                if (confirm("Are you sure you want to delete this ?" + id)) {
+                    $.ajax({
+                        type: "POST",
+                        url: "delete_customer.php",
+                        data: ({
+                            id: id
+                        }),
+                        cache: false,
+                        success: function (value) {
+                            location.reload();
+                            $("#success").html(value);
+                        }
+                    });
+                } else {
+                    return false;
+                }
+            });
+        });
+
+    </script>
+</body>
+
+</html>
